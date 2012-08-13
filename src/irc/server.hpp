@@ -16,11 +16,20 @@
 
 #include "command.hpp"
 
-typedef void (*CommandHandler)(IRC::Command);
+typedef void (*CommandHandler)(IRC::Command, void*);
 
 
 namespace IRC
 {
+  enum ServerState
+  {
+    NOT_CONNECTED,
+    SETTING_NICK,
+    SETTING_USER,
+    WORKING
+  };
+
+
   class Server
   {
    private:
@@ -31,13 +40,12 @@ namespace IRC
     char       *buffer;
     ssize_t     bufferSize;
 
-    bool connected;
+    ServerState state;
 
 
    protected:
-    std::map<std::string, CommandHandler> callbackMap;
-
-    std::vector<Command> *GetCommands();
+    std::map<std::string, CommandHandler>  callbackMap;
+    std::vector<Command>                  *GetCommands();
 
 
    public:
@@ -52,7 +60,7 @@ namespace IRC
     bool HandleCommands();
     bool SetCallback( std::string, CommandHandler );
     
-    bool IsConnected(){ return connected; }
+    bool IsConnected(){ return (state != NOT_CONNECTED); }
 
   };
 }

@@ -22,7 +22,7 @@ Server::Server( string      host,
     fprintf( stderr, "Error allocating servers buffer!\n" );
   }
 
-  connected = false;
+  state = NOT_CONNECTED;
 }
 
 
@@ -59,15 +59,14 @@ bool Server::Connect()
   servAddr.sin_family = AF_INET;
   servAddr.sin_port = htons( serverPort );
   servAddr.sin_addr.s_addr = ((struct in_addr*)(server->h_addr))->s_addr;
+
   if( connect( sockfd, (struct sockaddr*)&servAddr, sizeof( servAddr )) < 0 )
   {
     fprintf( stderr, "Error connecting %d\n", errno );
     return false;
   }
 
-  printf( "sock = %d\n", sockfd );
-
-  connected = true;
+  state = SETTING_NICK;
   return true;
 }
 
@@ -75,10 +74,10 @@ bool Server::Connect()
 
 void Server::Disconnect()
 {
-  if( !connected )
+  if( !IsConnected() )
     return;
 
-  connected = false;
+  state = NOT_CONNECTED;
   close( sockfd );
 }
 
@@ -135,7 +134,6 @@ vector<Command> *Server::GetCommands()
     commands->push_back( cmd );
     pch = strtok( NULL, "\n" );
   }
-  while( pch != NULL );
 
   delete tmp;
 
