@@ -1,0 +1,6 @@
+bot
+tags
+bin
+obj
+*.taghl
+*.swp
