@@ -16,7 +16,7 @@
 
 #include "command.hpp"
 
-typedef void (*CommandHandler)(IRC::Command, void*);
+typedef bool (*CommandHandler)(IRC::Command, void*);
 
 
 namespace IRC
@@ -58,10 +58,12 @@ namespace IRC
     bool Write( std::string msg );
 
     bool HandleCommands();
-    bool SetCallback( std::string, CommandHandler );
+    bool SetCommandHandler( std::string, CommandHandler );
     
     bool IsConnected(){ return (state != NOT_CONNECTED); }
 
+    ServerState GetState(){ return state; }
+    ServerState SetState( ServerState s){ state = s; }
   };
 }
 
