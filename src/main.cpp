@@ -1,4 +1,8 @@
+#include <dlfcn.h>
+#include <iostream>
 #include "irc/irc.hpp"
+
+/*
 
 bool Authenticate( IRC::Command cmd, void *server )
 {
@@ -40,10 +44,20 @@ bool Pong( IRC::Command cmd, void *server )
   return true;
 }
 
-
+*/
 
 int main()
 {
+  void *libircHandle;
+  libircHandle = dlopen( "/opt/lib/libirc.so", RTLD_NOW );
+
+  if( !libircHandle )
+  {
+    fprintf( stderr, "Couldn't load libirc.so\n" );
+    return -1;
+  }
+
+  /*
   IRC::Server *is = new IRC::Server( "irc.quakenet.org", 6667 );
 
   is->SetCommandHandler( "AUTH", Authenticate );
@@ -59,6 +73,8 @@ int main()
   }
   is->Disconnect();
   delete is;
+  */
 
   return 0;
 }
+
