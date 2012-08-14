@@ -116,7 +116,7 @@ int main()
 
 
       IrcServerDestroyer = (void(*)(IRC::Server*))dlsym( libircHandle, "ServerDestroyer" );
-      if( !IrcServerMaker )
+      if( !IrcServerDestroyer )
       {
         fprintf( stderr, "Couldn't load libirc.so::ServerDestroyer\n" );
         return -1;
