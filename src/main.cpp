@@ -50,7 +50,7 @@ bool Pong( IRC::Command cmd, void *server )
 const char *libircPath = "/opt/lib/libirc.so";
 
 
-int TimeChanged( const char *path )
+int GetTimestamp( const char *path )
 {
   struct stat st;
 
@@ -68,15 +68,15 @@ int TimeChanged( const char *path )
 
 int main()
 {
-  void *libircHandle  = NULL;
-  int   libircChanged = 0;
-  int   libircUpdated = 0;
+  void *libircHandle    = NULL;
+  int   libircChanged   = 0;
+  int   libircTimestamp = 0;
 
   while( true )
   {
     // Load libirc if it has been updated.
-    updated = TimeChanged( libircPath );
-    if( libircChanged < updated )
+    libircTimestamp = GetTimestamp( libircPath );
+    if( libircChanged < libircTimestamp )
     {
       if( libircHandle )
       {
@@ -93,7 +93,7 @@ int main()
 
       printf( "irclib loaded.\n" );
 
-      libircChanged = updated;
+      libircChanged = libircTimestamp;
     }
   }
 
