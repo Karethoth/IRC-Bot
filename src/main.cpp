@@ -1,4 +1,5 @@
 #include <dlfcn.h>
+#include <sys/stat.h>
 #include <iostream>
 #include "irc/irc.hpp"
 
@@ -46,15 +47,54 @@ bool Pong( IRC::Command cmd, void *server )
 
 */
 
+const char *libircPath = "/opt/lib/libirc.so";
+
+
+int TimeChanged( const char *path )
+{
+  struct stat st;
+
+  int err = stat( path, &st );
+  if( err != 0 )
+  {
+    fprintf( stderr, "Couldn't open '%s'\n", path );
+    return -1;
+  }
+
+  return st.st_mtime;
+}
+
+
+
 int main()
 {
-  void *libircHandle;
-  libircHandle = dlopen( "/opt/lib/libirc.so", RTLD_NOW );
+  void *libircHandle  = NULL;
+  int   libircChanged = 0;
+  int   libircUpdated = 0;
 
-  if( !libircHandle )
+  while( true )
   {
-    fprintf( stderr, "Couldn't load libirc.so\n" );
-    return -1;
+    // Load libirc if it has been updated.
+    updated = TimeChanged( libircPath );
+    if( libircChanged < updated )
+    {
+      if( libircHandle )
+      {
+        dlclose( libircHandle );
+      }
+
+      libircHandle = dlopen( libircPath, RTLD_NOW );
+
+      if( !libircHandle )
+      {
+        fprintf( stderr, "Couldn't load libirc.so\n" );
+        return -1;
+      }
+
+      printf( "irclib loaded.\n" );
+
+      libircChanged = updated;
+    }
   }
 
   /*
