@@ -1,4 +1,5 @@
 #include "handlers.hpp"
+#include <csignal>
 
 using namespace IRC;
 
@@ -30,14 +31,14 @@ bool Authenticate( IRC::Command cmd, void *server )
   IRC::Server *srv = static_cast<IRC::Server*>( server );
   if( srv->GetState() == IRC::SETTING_NICK )
   {
-    printf( "Setting nick\n" );
+    printf( "Setting nick\r\n" );
     srv->Write( "NICK KoukariBot\n" );
     srv->SetState( IRC::SETTING_USER );
   }
   else if( srv->GetState() == IRC::SETTING_USER )
   {
-    printf( "Setting user\n" );
-    srv->Write( "USER meh meh meh 8:KoukariBot\n" );
+    printf( "Setting user\r\n" );
+    srv->Write( "USER meh meh meh 8:KoukariBot\r\n" );
   }
   return true;
 }
@@ -60,6 +61,7 @@ bool Pong( IRC::Command cmd, void *server )
   IRC::Server *srv = static_cast<IRC::Server*>( server );
   std::string msg = "PONG :";
   msg.append( cmd.data );
+  msg.append( "\r\n" );
   srv->Write( msg );
   srv->SetState( IRC::WORKING );
   return true;

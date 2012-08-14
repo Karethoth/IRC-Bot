@@ -116,6 +116,7 @@ void Server::Disconnect()
 
 bool Server::Write( string msg )
 {
+  printf( "SENDING TO SERVER: '%s'\n", msg.c_str() );
   if( write( sockfd, msg.c_str(), msg.length() ) <= -1 )
     return false;
   return true;
@@ -130,7 +131,8 @@ bool Server::HandleCommands()
   vector<Command>::iterator comIt;
   for( comIt = commands->begin(); comIt != commands->end(); ++comIt )
   {
-    CommandHandler handler = callbackMap[(*comIt).command];
+    char *cmd = (*comIt).command;
+    CommandHandler handler = callbackMap[cmd];
     if( handler )
     {
       printf( "handling command %s\n", (*comIt).command );
@@ -139,7 +141,6 @@ bool Server::HandleCommands()
     else
     {
       printf( "No handler for command %s was found.\n", (*comIt).command );
-      printf( "Full command was '%s'\n", (*comIt).raw );
     }
   }
 
@@ -163,17 +164,19 @@ vector<Command> *Server::GetCommands()
   }
   while( n == bufferSize );
 
-
   char *tmp = new char[data.length()];
   data.copy( tmp, data.length(), 0 );
 
-  char *pch;
-  pch = strtok( tmp, "\n" );
-  while( pch != NULL )
+  char *offset      = tmp;
+  char *nextLineEnd = NULL;
+
+  while( (nextLineEnd = strstr( offset, "\r\n" )) > 0 )
   {
-    Command cmd = ParseCommand( pch );
+
+    nextLineEnd[0] = 0;
+    Command cmd = ParseCommand( offset );
     commands->push_back( cmd );
-    pch = strtok( NULL, "\n" );
+    offset = (nextLineEnd+2);
   }
 
   delete tmp;
