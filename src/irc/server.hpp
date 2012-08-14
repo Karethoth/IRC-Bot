@@ -42,12 +42,6 @@ namespace IRC
 
     ServerState state;
 
-
-   protected:
-    std::map<std::string, CommandHandler>  callbackMap;
-    std::vector<Command>                  *GetCommands();
-
-
    public:
     Server();
     Server( std::string host, int port );
@@ -69,6 +63,7 @@ namespace IRC
     virtual ServerState SetState( ServerState s){ state = s; }
 
     virtual int GetSocket(){ return sockfd; }
+    virtual std::vector<Command> *GetCommands();
   };
 }
 

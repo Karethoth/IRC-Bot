@@ -124,31 +124,6 @@ bool Server::Write( string msg )
 
 
 
-bool Server::HandleCommands()
-{
-  vector<Command> *commands = GetCommands();
-
-  vector<Command>::iterator comIt;
-  for( comIt = commands->begin(); comIt != commands->end(); ++comIt )
-  {
-    char *cmd = (*comIt).command;
-    CommandHandler handler = callbackMap[cmd];
-    if( handler )
-    {
-      printf( "handling command %s\n", (*comIt).command );
-      handler( (*comIt), this );
-    }
-    else
-    {
-      printf( "No handler for command %s was found.\n", (*comIt).command );
-    }
-  }
-
-  return true;
-}
-
-
-
 vector<Command> *Server::GetCommands()
 {
   vector<Command> *commands = new vector<Command>();
@@ -186,9 +161,3 @@ vector<Command> *Server::GetCommands()
 
 
 
-bool Server::SetCommandHandler( string key, CommandHandler handler )
-{
-  callbackMap.erase( key );
-  callbackMap.insert( std::pair<string, CommandHandler>( key, handler ) );
-  return true;
-}

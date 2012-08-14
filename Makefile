@@ -4,7 +4,8 @@ CWARN = -W -Wall -Wshadow -Wreturn-type -Wformat -Wparentheses -Wpointer-arith -
 TGT   = ircbot
 TGTFLAGS = -rdynamic -ldl
 
-OBJS  = obj/main.o
+OBJS  = obj/extension_manager.o \
+	obj/main.o
 
 LIBIRC  = libirc.so.1.0
 IRCOBJS = obj/irc/command.o \

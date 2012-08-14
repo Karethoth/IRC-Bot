@@ -2,11 +2,10 @@
 #include <sys/stat.h>
 #include <iostream>
 #include "irc/irc.hpp"
+#include "extension_manager.hpp"
 
 
 using std::string;
-
-
 
 
 const char *libircPath = "/opt/lib/libirc.so";
@@ -31,7 +30,6 @@ int GetTimestamp( const char *path )
 
 int main()
 {
-
   // libbot
   void  *libbotHandle    = NULL;
   int    libbotChanged   = 0;
@@ -53,6 +51,11 @@ int main()
   void         (*IrcServerDestroyer)(IRC::Server*);
   IRC::Server *server = NULL;
 
+
+  ExtensionManager *em = new ExtensionManager();
+  em->Update();
+
+  /*
 
   while( true )
   {
@@ -171,6 +174,7 @@ int main()
     server->Disconnect();
     IrcServerDestroyer( server );
   }
+  */
 
   return 0;
 }
