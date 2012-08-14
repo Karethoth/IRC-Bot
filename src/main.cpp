@@ -3,7 +3,9 @@
 #include <iostream>
 #include "irc/irc.hpp"
 
-/*
+
+using std::string;
+
 
 bool Authenticate( IRC::Command cmd, void *server )
 {
@@ -45,7 +47,7 @@ bool Pong( IRC::Command cmd, void *server )
   return true;
 }
 
-*/
+
 
 const char *libircPath = "/opt/lib/libirc.so";
 
@@ -72,6 +74,17 @@ int main()
   int   libircChanged   = 0;
   int   libircTimestamp = 0;
 
+
+  // Server related
+  string host   = "irc.quakenet.org";
+  int    port   = 6667;
+  int    sockfd = -1;
+  IRC::ServerState serverState = IRC::NOT_CONNECTED;
+
+  IRC::Server* (*IrcServerMaker)();
+  void         (*IrcServerDestroyer)(IRC::Server*);
+  IRC::Server *server = NULL;
+
   while( true )
   {
     // Load libirc if it has been updated.
@@ -90,30 +103,75 @@ int main()
         fprintf( stderr, "Couldn't load libirc.so\n" );
         return -1;
       }
+      printf( "libirc.so loaded.\n" );
 
-      printf( "irclib loaded.\n" );
+
+      IrcServerMaker = (IRC::Server*(*)())dlsym( libircHandle, "ServerMaker" );
+      if( !IrcServerMaker )
+      {
+        fprintf( stderr, "Couldn't load libirc.so::ServerMaker\n" );
+        return -1;
+      }
+      printf( "libirc.so::ServerMaker loaded.\n" );
+
+
+      IrcServerDestroyer = (void(*)(IRC::Server*))dlsym( libircHandle, "ServerDestroyer" );
+      if( !IrcServerMaker )
+      {
+        fprintf( stderr, "Couldn't load libirc.so::ServerDestroyer\n" );
+        return -1;
+      }
+      printf( "libirc.so::ServerDestroyer loaded.\n" );
 
       libircChanged = libircTimestamp;
+
+
+      // Set up the server class.
+      server = IrcServerMaker();
+      if( !server )
+      {
+        fprintf( stderr, "Setting up the server failed!" );
+        return -1;
+      }
+      server->Init( host, port, sockfd );
+
+      if( serverState == IRC::NOT_CONNECTED )
+      {
+        server->Connect();
+        serverState = server->GetState();
+      }
+
+      // Set up the command handlers.
+      // -----------
+      // This need to be imported to a library
+      // to make it customizable at runtime.
+      // As well as the commandHandlers.
+      server->SetCommandHandler( "AUTH", Authenticate );
+      server->SetCommandHandler( "001", LoggedIn );
+      server->SetCommandHandler( "PING", Pong );
+
+      printf( "Server class's been got to work!" );
     }
+
+    if( !server )
+      continue;
+
+    if( !server->IsConnected() )
+    {
+      printf( "Server disconnected, connecting again\n" );
+      serverState = IRC::NOT_CONNECTED;
+      server->Connect();
+      continue;
+    }
+
+    server->HandleCommands();
   }
 
-  /*
-  IRC::Server *is = new IRC::Server( "irc.quakenet.org", 6667 );
-
-  is->SetCommandHandler( "AUTH", Authenticate );
-  is->SetCommandHandler( "001", LoggedIn );
-  is->SetCommandHandler( "PING", Pong );
-
-  if( !is->Connect() )
-    return -1;
-
-  while( is->IsConnected() )
+  if( server );
   {
-    is->HandleCommands();
+    server->Disconnect();
+    IrcServerDestroyer( server );
   }
-  is->Disconnect();
-  delete is;
-  */
 
   return 0;
 }

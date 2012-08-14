@@ -7,13 +7,44 @@ using std::vector;
 using std::map;
 
 
+extern "C" {
+  Server *ServerMaker()
+  {
+    return new Server();
+  }
 
-/* Initializer */
+  void ServerDestroyer( Server *server )
+  {
+    delete server;
+  }
+}
+
+
+
+/* Initializers */
+Server::Server()
+{
+  bufferSize = 1024;
+  state = NOT_CONNECTED;
+}
+
+
+
 Server::Server( string      host,
                 int         port )
                 : serverPort( port )
 {
+  Init( host, port, -1 );
+}
+
+
+
+void Server::Init( string host,
+                   int port,
+                   int sock )
+{
   serverHost = host;
+  serverPort = port;
 
   bufferSize = 1024;
   buffer = new char[bufferSize];
@@ -23,8 +54,8 @@ Server::Server( string      host,
   }
 
   state = NOT_CONNECTED;
+  sockfd = sock;
 }
-
 
 
 /* Destructor */
@@ -158,4 +189,3 @@ bool Server::SetCommandHandler( string key, CommandHandler handler )
   callbackMap.insert( std::pair<string, CommandHandler>( key, handler ) );
   return true;
 }
-

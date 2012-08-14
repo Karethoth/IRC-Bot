@@ -49,21 +49,26 @@ namespace IRC
 
 
    public:
+    Server();
     Server( std::string host, int port );
     ~Server();
 
-    bool Connect();
-    void Disconnect();
+    virtual void Init( std::string host, int port, int sock );
 
-    bool Write( std::string msg );
+    virtual bool Connect();
+    virtual void Disconnect();
 
-    bool HandleCommands();
-    bool SetCommandHandler( std::string, CommandHandler );
+    virtual bool Write( std::string msg );
+
+    virtual bool HandleCommands();
+    virtual bool SetCommandHandler( std::string, CommandHandler );
     
-    bool IsConnected(){ return (state != NOT_CONNECTED); }
+    virtual bool IsConnected(){ return (state != NOT_CONNECTED); }
 
-    ServerState GetState(){ return state; }
-    ServerState SetState( ServerState s){ state = s; }
+    virtual ServerState GetState(){ return state; }
+    virtual ServerState SetState( ServerState s){ state = s; }
+
+    virtual int GetSocket(){ return sockfd; }
   };
 }
 
