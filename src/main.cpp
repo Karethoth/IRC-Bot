@@ -81,6 +81,8 @@ int main()
       }
       printf( "libbot.so::SetCommandHandlers loaded.\n" );
 
+      libbotChanged = libbotTimestamp;
+
       if( serverState != IRC::NOT_CONNECTED )
       {
         SetCommandHandlers( server );
