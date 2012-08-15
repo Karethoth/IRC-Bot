@@ -72,11 +72,12 @@ bool ExtensionManager::HandleExtension( string libname )
 bool ExtensionManager::LoadExtension( string libname )
 {
   Extension extension;
-  extension.extensionPath = extensionDir.append( libname );
+  extension.extensionPath = extensionDir;
+  extension.extensionPath.append( libname );
   extension.extensionHandle = dlopen( extension.extensionPath.c_str(), RTLD_NOW );
   if( !extension.extensionHandle )
   {
-    fprintf( stderr, "Failed to load extension library '%s'!\n", libname.c_str() );
+    fprintf( stderr, "Failed to load extension library '%s'! - %s\n", libname.c_str(), dlerror() );
     return false;
   }
 
@@ -128,16 +129,21 @@ bool GetFilesInDir( string dir, vector<string> &files )
 {
   DIR *dp;
   struct dirent *dirp;
+
   if( (dp  = opendir( dir.c_str() )) == NULL )
   {
       printf( "Couldn't open extensions-dir\n" );
       return false;
   }
 
-  while ((dirp = readdir(dp)) != NULL) {
-      files.push_back(string(dirp->d_name));
+  while( (dirp = readdir(dp)) != NULL )
+  {
+
+      files.push_back( string( dirp->d_name ) );
   }
-  closedir(dp);
+
+  closedir( dp );
+
   return true;
 }
 
