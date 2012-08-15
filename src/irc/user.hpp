@@ -11,6 +11,7 @@ namespace IRC
     char *realName;
     char *host;
   };
+  User ParseUser( char *data );
 }
 
 #endif

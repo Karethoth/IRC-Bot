@@ -1,5 +1,8 @@
 #include "bot.hpp"
 
+using std::string;
+using std::vector;
+
 
 extern "C"
 {
@@ -15,73 +18,112 @@ extern "C"
 }
 
 
-
-bool Authenticate( IRC::Command, void* );
-bool LoggedIn( IRC::Command, void* );
-bool Pong( IRC::Command, void* );
-bool Msg( IRC::Command, void* );
-
-
-
 BotExtension::BotExtension()
 {
   name = "Bot";
-  SetCommandHandler( "AUTH", Authenticate );
-  SetCommandHandler( "001",  LoggedIn );
-  SetCommandHandler( "PING", Pong );
-  SetCommandHandler( "PRIVMSG", Msg );
 }
 
 
 
-
-bool Authenticate( IRC::Command cmd, void *server )
+void BotExtension::SetExtensionManager( void *extMan )
 {
-  IRC::Server *srv = static_cast<IRC::Server*>( server );
-  if( srv->GetState() == IRC::SETTING_NICK )
+  extensionMan = static_cast<ExtensionManager*>( extMan );
+}
+
+
+
+bool BotExtension::HandleCommands( IRC::Server *server, vector<IRC::Command> *commands )
+{
+  vector<IRC::Command>::iterator comIt;
+  for( comIt = commands->begin(); comIt != commands->end(); ++comIt )
+  {
+    if( !string("PRIVMSG").compare( (*comIt).command ) )
+    {
+      Msg( (*comIt), server );
+    }
+
+    else if( !string("PING").compare( (*comIt).command ) )
+    {
+      Pong( (*comIt), server );
+    }
+
+    else if( !string("AUTH").compare( (*comIt).command ) )
+    {
+      Authenticate( (*comIt), server );
+    }
+
+    else if( !string("001").compare( (*comIt).command ) )
+    {
+      LoggedIn( (*comIt), server );
+    }
+  }
+
+
+  return true;
+}
+
+
+
+bool BotExtension::Authenticate( IRC::Command cmd, IRC::Server *server )
+{
+  if( server->GetState() == IRC::SETTING_NICK )
   {
     printf( "Setting nick\r\n" );
-    srv->Write( "NICK KoukariBot\n" );
-    srv->SetState( IRC::SETTING_USER );
+    server->Write( "NICK KoukariBot\n" );
+    server->SetState( IRC::SETTING_USER );
   }
-  else if( srv->GetState() == IRC::SETTING_USER )
+  else if( server->GetState() == IRC::SETTING_USER )
   {
     printf( "Setting user\r\n" );
-    srv->Write( "USER meh meh meh 8:KoukariBot\r\n" );
+    server->Write( "USER meh meh meh 8:KoukariBot\r\n" );
   }
   return true;
 }
 
 
 
-bool LoggedIn( IRC::Command cmd, void *server )
+bool BotExtension::LoggedIn( IRC::Command cmd, IRC::Server *server )
 {
-  IRC::Server *srv = static_cast<IRC::Server*>( server );
-  if( std::string( cmd.command ).compare("001") )
+  if( string( cmd.command ).compare("001") )
   {
-    srv->SetState( IRC::WORKING );
+    server->SetState( IRC::WORKING );
   }
 }
 
 
 
-bool Pong( IRC::Command cmd, void *server )
+bool BotExtension::Pong( IRC::Command cmd, IRC::Server *server )
 {
-  IRC::Server *srv = static_cast<IRC::Server*>( server );
-  std::string msg = "PONG :";
+  string msg = "PONG :";
   msg.append( cmd.data );
   msg.append( "\r\n" );
-  srv->Write( msg );
-  srv->SetState( IRC::WORKING );
+  server->Write( msg );
+  server->SetState( IRC::WORKING );
   return true;
 }
 
 
 
-bool Msg( IRC::Command cmd, void *server )
+bool BotExtension::Msg( IRC::Command cmd, IRC::Server *server )
 {
-  IRC::Server *srv = static_cast<IRC::Server*>( server );
   printf( "<%s> %s\n", cmd.source, cmd.data );
+
+  if( strstr( cmd.data, "list extensions" ) )
+  {
+    if( !extensionMan )
+    {
+      printf( "extensionMan not set!\n" );
+      return true;
+    }
+    printf( "list of extensions:\n" );
+
+    vector<Extension*> *extensions = extensionMan->GetExtensions();
+    vector<Extension*>::iterator extit;
+    for( extit = extensions->begin(); extit != extensions->end(); ++extit )
+    {
+      printf( "\t- %s\n", (*extit)->extensionName.c_str() );
+    }
+  }
   return true;
 }
 

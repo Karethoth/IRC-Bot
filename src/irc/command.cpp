@@ -5,6 +5,17 @@
 
 using IRC::Command;
 
+bool ValidateCommand( char *msg )
+{
+  if( strlen( msg ) <= 3 )
+  {
+    return false;
+  }
+
+  return true;
+}
+
+
 
 Command IRC::ParseCommand( char *msg )
 {
@@ -12,6 +23,14 @@ Command IRC::ParseCommand( char *msg )
   Command cmd;
   cmd.raw = new char[strlen( msg )+2];
   strcpy( cmd.raw, msg );
+
+  if( !ValidateCommand( msg ) )
+  {
+    printf( "Not a valid command!\n" );
+    cmd.command = "NOT_VALID_COMMAND";
+    return cmd;
+  }
+
   cmd.raw[strlen( msg )+1] = 0;
 
   cmd.source = cmd.raw;

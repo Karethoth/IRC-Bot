@@ -172,6 +172,9 @@ bool ExtensionManager::LoadExtension( string libname )
   extension->extensionTimestamp = GetTimestamp( extension->extensionPath.c_str() );
 
   extension->extensionName = extension->extensionClass->GetName();
+
+  extension->extensionClass->SetExtensionManager( (void*)this );
+
   printf( "The name of the loaded extension was '%s'\n", extension->extensionName.c_str() );
 
 

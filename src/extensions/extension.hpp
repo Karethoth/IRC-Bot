@@ -13,11 +13,23 @@ class ExtensionBase
   std::string name;
   std::map<std::string, CommandHandler> callbackMap;
 
+  // For interacting with other extensions
+  void *extensionManager;
+
  public:
   ExtensionBase()
   {
     name = "ExtensionBase";
+    extensionManager = NULL;
   }
+
+
+
+  virtual void SetExtensionManager( void *extMan )
+  {
+    extensionManager = extMan;
+  }
+
 
 
   virtual bool HandleCommands( IRC::Server *server, std::vector<IRC::Command> *commands )

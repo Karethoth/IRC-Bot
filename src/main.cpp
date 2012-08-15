@@ -58,7 +58,6 @@ int main()
 
   while( true )
   {
-
     if( !server )
     {
       printf( "missing server!" );

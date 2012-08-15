@@ -16,6 +16,7 @@
 
 #include "command.hpp"
 
+
 typedef bool (*CommandHandler)(IRC::Command, void*);
 
 
@@ -61,6 +62,9 @@ namespace IRC
 
     virtual int GetSocket(){ return sockfd; }
     virtual bool GetCommands( std::vector<IRC::Command> *commands );
+
+    // For extensions, that interact with other extension(s)
+    void *extensionManager;
   };
 }
 

@@ -1,4 +1,6 @@
 #include "server.hpp"
+#include "../extension_manager.hpp"
+
 #include <cerrno>
 
 using namespace IRC;
@@ -27,6 +29,7 @@ Server::Server()
 {
   bufferSize = 1024;
   state = NOT_CONNECTED;
+  extensionManager = NULL;
 }
 
 
@@ -45,6 +48,8 @@ void Server::Init( string host,
 {
   serverHost = host;
   serverPort = port;
+
+  extensionManager = NULL;
 
   bufferSize = 1024;
   buffer = new char[bufferSize];
