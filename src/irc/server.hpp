@@ -54,9 +54,6 @@ namespace IRC
 
     virtual bool Write( std::string msg );
 
-    virtual bool HandleCommands();
-    virtual bool SetCommandHandler( std::string, CommandHandler );
-    
     virtual bool IsConnected(){ return (state != NOT_CONNECTED); }
 
     virtual ServerState GetState(){ return state; }

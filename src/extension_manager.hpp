@@ -4,15 +4,22 @@
 #include <iostream>
 #include <vector>
 #include "extensions/extension.hpp"
+#include "irc/irc.hpp"
 
 
 struct Extension
 {
+  std::string    extensionName;
   std::string    extensionPath;
   int            extensionTimestamp;
   ExtensionBase *extensionClass;
   void          *extensionHandle;
+
+  // Creater and destroyer
+  ExtensionBase *(*CreateExtension)();
+  void          *(*DestroyExtension)(ExtensionBase*);
 };
+
 
 
 class ExtensionManager
@@ -26,8 +33,12 @@ class ExtensionManager
 
  public:
   ExtensionManager();
-  std::vector<Extension> *GetExtensions();
+
   bool Update();
+  bool HandleCommands( IRC::Server *server );
+
+  std::vector<Extension> *GetExtensions();
+
 };
 
 #endif

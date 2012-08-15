@@ -20,9 +20,9 @@ class ExtensionBase
   }
 
 
-  virtual bool HandleCommands( std::vector<IRC::Command>* )
+  virtual bool HandleCommands( IRC::Server *server, std::vector<IRC::Command> *commands )
   {
-    std::vector<Command>::iterator comIt;
+    std::vector<IRC::Command>::iterator comIt;
     for( comIt = commands->begin(); comIt != commands->end(); ++comIt )
     {
       char *cmd = (*comIt).command;
@@ -30,7 +30,7 @@ class ExtensionBase
       if( handler )
       {
         printf( "Extension handling command %s\n", (*comIt).command );
-        handler( (*comIt), this );
+        handler( (*comIt), server );
       }
     }
 
@@ -41,7 +41,7 @@ class ExtensionBase
   virtual bool SetCommandHandler( std::string key, CommandHandler handler )
   {
     callbackMap.erase( key );
-    callbackMap.insert( std::pair<string, CommandHandler>( key, handler ) );
+    callbackMap.insert( std::pair<std::string, CommandHandler>( key, handler ) );
     return true;
   }
 

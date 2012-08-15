@@ -9,7 +9,6 @@ using std::string;
 
 
 const char *libircPath = "/opt/lib/libirc.so";
-const char *libbotPath = "/opt/lib/libbot.so";
 
 
 int GetTimestamp( const char *path )
@@ -30,12 +29,6 @@ int GetTimestamp( const char *path )
 
 int main()
 {
-  // libbot
-  void  *libbotHandle    = NULL;
-  int    libbotChanged   = 0;
-  int    libbotTimestamp = 0;
-  bool (*SetCommandHandlers)(IRC::Server*);
-
   // libirc
   void *libircHandle    = NULL;
   int   libircChanged   = 0;
@@ -55,44 +48,9 @@ int main()
   ExtensionManager *em = new ExtensionManager();
   em->Update();
 
-  /*
 
   while( true )
   {
-    // Load libbot if it has been updated.
-    libbotTimestamp = GetTimestamp( libbotPath );
-    if( libbotChanged < libbotTimestamp )
-    {
-      if( libbotHandle )
-      {
-        dlclose( libbotHandle );
-      }
-
-      libbotHandle = dlopen( libbotPath, RTLD_NOW );
-      if( !libbotHandle )
-      {
-        fprintf( stderr, "Couldn't load libbot.so\n" );
-        return -1;
-      }
-      printf( "libbot.so loaded.\n" );
-
-      SetCommandHandlers = (bool(*)(IRC::Server*))dlsym( libbotHandle, "SetCommandHandlers" );
-      if( !SetCommandHandlers )
-      {
-        fprintf( stderr, "Couldn't load libbot.so::SetCommandHandlers\n" );
-        return -1;
-      }
-      printf( "libbot.so::SetCommandHandlers loaded.\n" );
-
-      libbotChanged = libbotTimestamp;
-
-      if( serverState != IRC::NOT_CONNECTED )
-      {
-        SetCommandHandlers( server );
-      }
-    }
-
-
     // Load libirc if it has been updated.
     libircTimestamp = GetTimestamp( libircPath );
     if( libircChanged < libircTimestamp )
@@ -102,10 +60,10 @@ int main()
         dlclose( libircHandle );
       }
 
-      libircHandle = dlopen( libircPath, RTLD_NOW );
+      libircHandle = dlopen( libircPath, RTLD_LAZY );
       if( !libircHandle )
       {
-        fprintf( stderr, "Couldn't load libirc.so\n" );
+        fprintf( stderr, "Couldn't load libirc.so %s\n", dlerror() );
         return -1;
       }
       printf( "libirc.so loaded.\n" );
@@ -143,8 +101,6 @@ int main()
       server->SetState( serverState );
 
       // Set up the command handlers
-      SetCommandHandlers( server );
-
       if( serverState == IRC::NOT_CONNECTED )
       {
         server->Connect();
@@ -166,15 +122,14 @@ int main()
       continue;
     }
 
-    server->HandleCommands();
+    em->HandleCommands( server );
   }
 
-  if( server );
+  if( server )
   {
     server->Disconnect();
     IrcServerDestroyer( server );
   }
-  */
 
   return 0;
 }
