@@ -34,9 +34,39 @@ ExtensionManager::ExtensionManager()
 
 
 
-vector<Extension> *ExtensionManager::GetExtensions()
+vector<Extension*> *ExtensionManager::GetExtensions()
 {
   return &extensions;
+}
+
+
+
+Extension *ExtensionManager::GetExtensionByPath( string path )
+{
+  vector<Extension*>::iterator extit;
+  for( extit = extensions.begin(); extit != extensions.end(); ++extit )
+  {
+    if( (*extit)->extensionPath.compare( path ) == 0 )
+    {
+      return (*extit);
+    }
+  }
+  return NULL;
+}
+
+
+
+Extension *ExtensionManager::GetExtensionByName( string name )
+{
+  vector<Extension*>::iterator extit;
+  for( extit = extensions.begin(); extit != extensions.end(); ++extit )
+  {
+    if( (*extit)->extensionName.compare( name ) == 0 )
+    {
+      return (*extit);
+    }
+  }
+  return NULL;
 }
 
 
@@ -62,7 +92,18 @@ bool ExtensionManager::Update()
 
 bool ExtensionManager::HandleExtension( string libname )
 {
-  // For now, just load it without checking it.
+  Extension *ext = GetExtensionByPath( extensionDir+libname );
+  string path = extensionDir;
+  path.append( libname );
+  if( ext )
+  {
+    if( ext->extensionTimestamp >= GetTimestamp( path.c_str() ) )
+    {
+      return true;
+    }
+
+    UnloadExtension( libname );
+  }
   LoadExtension( libname );
   return true;
 }
@@ -71,55 +112,80 @@ bool ExtensionManager::HandleExtension( string libname )
 
 bool ExtensionManager::LoadExtension( string libname )
 {
-  Extension extension;
-  extension.extensionPath = extensionDir;
-  extension.extensionPath.append( libname );
-  extension.extensionHandle = dlopen( extension.extensionPath.c_str(), RTLD_NOW );
-  if( !extension.extensionHandle )
+  Extension *extension = new Extension;
+  extension->extensionPath = extensionDir+libname;
+  extension->extensionHandle = dlopen( extension->extensionPath.c_str(), RTLD_NOW );
+  if( !extension->extensionHandle )
   {
     fprintf( stderr, "Failed to load extension library '%s'! - %s\n", libname.c_str(), dlerror() );
     return false;
   }
-
-  printf( "Loading library functions for '%s'....\n", libname.c_str() );
   
-  extension.CreateExtension = (ExtensionBase*(*)())dlsym( extension.extensionHandle, "CreateExtension" );
-  if( !extension.CreateExtension )
+  extension->CreateExtension = (ExtensionBase*(*)())dlsym( extension->extensionHandle, "CreateExtension" );
+  if( !extension->CreateExtension )
   {
     fprintf( stderr, "Failed to load CreateExtension from library '%s'!\n", libname.c_str() );
-    dlclose( extension.extensionHandle );
+    dlclose( extension->extensionHandle );
     return false;
   }
-  printf( "Loaded CreateExtension from library '%s'.\n", libname.c_str() );
 
-  extension.DestroyExtension = (void*(*)(ExtensionBase*))dlsym( extension.extensionHandle, "CreateExtension" );
-  if( !extension.DestroyExtension )
+  extension->DestroyExtension = (void*(*)(ExtensionBase*))dlsym( extension->extensionHandle, "CreateExtension" );
+  if( !extension->DestroyExtension )
   {
     fprintf( stderr, "Failed to load DestroyExtension from library '%s'!\n", libname.c_str() );
-    dlclose( extension.extensionHandle );
+    dlclose( extension->extensionHandle );
     return false;
   }
-  printf( "Loaded DestroyExtension from library '%s'.\n", libname.c_str() );
   
   printf( "Finished loading extension library '%s'.\n", libname.c_str() );
 
-  extension.extensionClass = extension.CreateExtension();
-  if( !extension.DestroyExtension )
+  extension->extensionClass = extension->CreateExtension();
+  if( !extension->DestroyExtension )
   {
     fprintf( stderr, "Failed to initialize the extensionClass from library '%s'!\n", libname.c_str() );
-    dlclose( extension.extensionHandle );
+    dlclose( extension->extensionHandle );
     return false;
   }
-  printf( "Initialized the extensionClass from library '%s'!\n", libname.c_str() );
 
-  extension.extensionTimestamp = GetTimestamp( extension.extensionPath.c_str() );
+  extension->extensionTimestamp = GetTimestamp( extension->extensionPath.c_str() );
 
-  extension.extensionName = extension.extensionClass->GetName();
-  printf( "The name of the loaded extension was '%s'\n", extension.extensionName.c_str() );
+  extension->extensionName = extension->extensionClass->GetName();
+  printf( "The name of the loaded extension was '%s'\n", extension->extensionName.c_str() );
 
 
   // Push the extension to the vector
   extensions.push_back( extension );
+  return true;
+}
+
+
+
+bool ExtensionManager::UnloadExtension( string libname )
+{
+  vector<Extension*>::iterator extit;
+  for( extit = extensions.begin(); extit != extensions.end(); )
+  {
+    if( (*extit) )
+    {
+      if( (*extit)->extensionPath.compare( extensionDir+libname ) == 0 )
+      {
+        string name = (*extit)->extensionName;
+        if( (*extit)->extensionClass )
+        {
+          (*extit)->DestroyExtension( (*extit)->extensionClass );
+          (*extit)->extensionClass = NULL;
+          dlclose( (*extit)->extensionHandle );
+          (*extit)->extensionHandle = NULL;
+        }
+
+        (*extit)->extensionClass = NULL;
+        extit = extensions.erase( extit );
+        printf( "Unloaded extension '%s'.\n", name );
+        continue;
+      }
+    }
+    ++extit;
+  }
   return true;
 }
 
@@ -151,13 +217,18 @@ bool GetFilesInDir( string dir, vector<string> &files )
 
 bool ExtensionManager::HandleCommands( Server *server )
 {
-  vector<Command> *commands = server->GetCommands();
+  vector<Command> *commands = new vector<Command>();
+  server->GetCommands( commands );
 
-  vector<Extension>::iterator extit;
+  vector<Extension*>::iterator extit;
   for( extit = extensions.begin(); extit != extensions.end(); ++extit )
   {
-    (*extit).extensionClass->HandleCommands( server, commands );
+    printf( "Giving the command to extension %s.\n", (*extit)->extensionName.c_str() );
+    (*extit)->extensionClass->HandleCommands( server, commands );
   }
+
+  delete commands;
+
   return true;
 }
 

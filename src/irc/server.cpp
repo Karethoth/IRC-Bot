@@ -7,6 +7,7 @@ using std::vector;
 using std::map;
 
 
+/*
 extern "C" {
   Server *ServerMaker()
   {
@@ -18,7 +19,7 @@ extern "C" {
     delete server;
   }
 }
-
+*/
 
 
 /* Initializers */
@@ -32,7 +33,6 @@ Server::Server()
 
 Server::Server( string      host,
                 int         port )
-                : serverPort( port )
 {
   Init( host, port, -1 );
 }
@@ -97,6 +97,8 @@ bool Server::Connect()
     return false;
   }
 
+  printf( "Connected!\n" );
+
   state = SETTING_NICK;
   return true;
 }
@@ -124,11 +126,11 @@ bool Server::Write( string msg )
 
 
 
-vector<Command> *Server::GetCommands()
+bool Server::GetCommands( vector<Command> *commands )
 {
-  vector<Command> *commands = new vector<Command>();
-  
   string data = "";
+
+  commands->clear();
 
   ssize_t n;
   do
@@ -150,13 +152,16 @@ vector<Command> *Server::GetCommands()
 
     nextLineEnd[0] = 0;
     Command cmd = ParseCommand( offset );
-    commands->push_back( cmd );
+    if( commands )
+    {
+      commands->push_back( cmd );
+    }
     offset = (nextLineEnd+2);
   }
 
   delete tmp;
 
-  return commands;
+  return true;
 }
 
 

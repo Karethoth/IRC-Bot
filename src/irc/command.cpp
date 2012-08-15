@@ -10,7 +10,7 @@ Command IRC::ParseCommand( char *msg )
 {
   printf( "Message: '%s'\n", msg );
   Command cmd;
-  cmd.raw = new char[strlen( msg )+1];
+  cmd.raw = new char[strlen( msg )+2];
   strcpy( cmd.raw, msg );
   cmd.raw[strlen( msg )+1] = 0;
 
@@ -49,6 +49,9 @@ Command IRC::ParseCommand( char *msg )
   cmd.target = spacePointer;
 
   spacePointer    = strstr( spacePointer, " " );
+  if( !spacePointer )
+    return cmd;
+
   spacePointer[0] = 0;
   ++spacePointer;
 

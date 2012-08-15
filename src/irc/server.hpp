@@ -60,7 +60,7 @@ namespace IRC
     virtual ServerState SetState( ServerState s){ state = s; }
 
     virtual int GetSocket(){ return sockfd; }
-    virtual std::vector<Command> *GetCommands();
+    virtual bool GetCommands( std::vector<IRC::Command> *commands );
   };
 }
 

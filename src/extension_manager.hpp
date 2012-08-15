@@ -25,11 +25,12 @@ struct Extension
 class ExtensionManager
 {
  private:
-  std::string            extensionDir;
-  std::vector<Extension> extensions;
+  std::string             extensionDir;
+  std::vector<Extension*> extensions;
 
   bool HandleExtension( std::string libname );
   bool LoadExtension( std::string libname );
+  bool UnloadExtension( std::string libname );
 
  public:
   ExtensionManager();
@@ -37,8 +38,9 @@ class ExtensionManager
   bool Update();
   bool HandleCommands( IRC::Server *server );
 
-  std::vector<Extension> *GetExtensions();
-
+  std::vector<Extension*> *GetExtensions();
+  Extension *GetExtensionByName( std::string name );
+  Extension *GetExtensionByPath( std::string path );
 };
 
 #endif
