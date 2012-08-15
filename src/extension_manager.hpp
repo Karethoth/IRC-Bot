@@ -11,6 +11,7 @@ struct Extension
 {
   std::string    extensionName;
   std::string    extensionPath;
+  std::string    extensionLib;
   int            extensionTimestamp;
   ExtensionBase *extensionClass;
   void          *extensionHandle;

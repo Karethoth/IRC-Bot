@@ -77,7 +77,28 @@ bool ExtensionManager::Update()
 
   GetFilesInDir( extensionDir, files );
 
+  // Check for removed extensions
+  vector<Extension*>::iterator extit;
   vector<string>::iterator fit;
+  for( extit = extensions.begin(); extit != extensions.end(); ++extit )
+  {
+    string extLib = (*extit)->extensionLib;
+    bool found = false;
+    for( fit = files.begin(); fit != files.end(); ++fit )
+    {
+      if( extLib.compare( (*fit) ) == 0 )
+      {
+        found = true;
+        break;
+      }
+    }
+    if( !found )
+    {
+      UnloadExtension( (*extit)->extensionLib );
+    }
+  }
+
+  // Check existing and new extensions
   for( fit = files.begin(); fit != files.end(); ++fit )
   {
     if( strstr( (*fit).c_str(), ".so" ) )
@@ -114,6 +135,7 @@ bool ExtensionManager::LoadExtension( string libname )
 {
   Extension *extension = new Extension;
   extension->extensionPath = extensionDir+libname;
+  extension->extensionLib  = libname;
   extension->extensionHandle = dlopen( extension->extensionPath.c_str(), RTLD_NOW );
   if( !extension->extensionHandle )
   {
@@ -180,7 +202,7 @@ bool ExtensionManager::UnloadExtension( string libname )
 
         (*extit)->extensionClass = NULL;
         extit = extensions.erase( extit );
-        printf( "Unloaded extension '%s'.\n", name );
+        printf( "Unloaded extension '%s'.\n", name.c_str() );
         continue;
       }
     }
