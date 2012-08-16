@@ -77,6 +77,8 @@ bool Server::Connect()
   struct sockaddr_in servAddr;
   struct hostent *server;
 
+  printf( "Connecting..\n" );
+
   sockfd = socket( AF_INET, SOCK_STREAM, 0 );
   if( sockfd < 0 )
   {

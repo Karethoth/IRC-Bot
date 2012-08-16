@@ -52,12 +52,20 @@ bool BotExtension::HandleCommands( IRC::Server *server, vector<IRC::Command> *co
       Authenticate( (*comIt), server );
     }
 
+    else if( !string("NOTICE").compare( (*comIt).command ) &&
+             (server->GetState() == IRC::SETTING_NICK ||
+              server->GetState() == IRC::SETTING_USER ) &&
+             (strstr( (*comIt).data, "AUTH" ) ||
+              strstr( (*comIt).data, "Ident" ) ) )
+    {
+      Authenticate( (*comIt), server );
+    }
+
     else if( !string("001").compare( (*comIt).command ) )
     {
       LoggedIn( (*comIt), server );
     }
   }
-
 
   return true;
 }

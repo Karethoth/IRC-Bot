@@ -4,7 +4,6 @@
 #include "irc/irc.hpp"
 #include "extension_manager.hpp"
 
-
 using std::string;
 
 
@@ -32,7 +31,6 @@ int main()
   // Server related
   string host   = "irc.quakenet.org";
   int    port   = 6667;
-
 
 
   ExtensionManager *em = new ExtensionManager();
