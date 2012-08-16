@@ -78,12 +78,21 @@ bool ExtensionManager::Update()
   GetFilesInDir( extensionDir, files );
 
   // Check for removed extensions
+  bool found;
+  string extLib;
   vector<Extension*>::iterator extit;
   vector<string>::iterator fit;
-  for( extit = extensions.begin(); extit != extensions.end(); ++extit )
+  int loop = 0;
+  for( extit = extensions.begin(); extit != extensions.end(); ++loop )
   {
-    string extLib = (*extit)->extensionLib;
-    bool found = false;
+    if( loop >= extensions.size() || !(*extit) )
+    {
+      extit = extensions.begin();
+      loop  = 0;
+      continue;
+    }
+    extLib = (*extit)->extensionLib;
+    found = false;
     for( fit = files.begin(); fit != files.end(); ++fit )
     {
       if( extLib.compare( (*fit) ) == 0 )
@@ -96,6 +105,7 @@ bool ExtensionManager::Update()
     {
       UnloadExtension( (*extit)->extensionLib );
     }
+    ++extit;
   }
 
   // Check existing and new extensions

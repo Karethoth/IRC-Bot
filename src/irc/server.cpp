@@ -142,6 +142,11 @@ bool Server::GetCommands( vector<Command> *commands )
   {
     memset( buffer, 0, bufferSize );
     n = read( sockfd, buffer, bufferSize );
+    if( n <= 0 )
+    {
+      state = NOT_CONNECTED;
+      return false;
+    }
     data.append( buffer, n );
   }
   while( n == bufferSize );

@@ -36,6 +36,12 @@ Command IRC::ParseCommand( char *msg )
   cmd.source = cmd.raw;
 
   char *spacePointer = strstr( cmd.raw, " " );
+  if( !spacePointer )
+  {
+    printf( "Not a valid command!\n" );
+    cmd.command = "NOT_VALID_COMMAND";
+    return cmd;
+  }
 
   spacePointer[0]=0;
   ++spacePointer;
