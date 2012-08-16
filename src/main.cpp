@@ -29,11 +29,6 @@ int GetTimestamp( const char *path )
 
 int main()
 {
-  // libirc
-  void *libircHandle    = NULL;
-  int   libircChanged   = 0;
-  int   libircTimestamp = 0;
-
   // Server related
   string host   = "irc.quakenet.org";
   int    port   = 6667;
