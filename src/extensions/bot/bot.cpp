@@ -114,23 +114,49 @@ bool BotExtension::Pong( IRC::Command cmd, IRC::Server *server )
 
 bool BotExtension::Msg( IRC::Command cmd, IRC::Server *server )
 {
-  printf( "<%s> %s\n", cmd.source, cmd.data );
+  IRC::User *user = IRC::ParseUser( cmd.source );
+  if( !user )
+  {
+    fprintf( stderr, "Not handling this msg, not a parsable source!\n" );
+    return false;
+  }
+
+  printf( "<%s> %s\n", user->nick, cmd.data );
+
+  string reply = "PRIVMSG ";
+  reply.append( user->nick );
+  reply.append( " :" );
 
   if( strstr( cmd.data, "list extensions" ) )
   {
     if( !extensionMan )
     {
+      server->Write( reply+string( "Extension Manager not set! Sorry, can't list the extensions.\n" ) );
       printf( "extensionMan not set!\n" );
       return true;
     }
-    printf( "list of extensions:\n" );
+
+
+    server->Write( reply+string( "List of extensions:\n" ) );
 
     vector<Extension*> *extensions = extensionMan->GetExtensions();
+
+    // This shouldn't ever happen.
+    if( extensions->size() == 0 )
+    {
+      server->Write( reply+string( "No extensions to be listed.\n" ) );
+    }
+
     vector<Extension*>::iterator extit;
     for( extit = extensions->begin(); extit != extensions->end(); ++extit )
     {
-      printf( "\t- %s\n", (*extit)->extensionName.c_str() );
+      server->Write( reply+string( "  - " )+(*extit)->extensionName+string( "\n" ) );
     }
+  }
+
+  if( user )
+  {
+    delete user;
   }
   return true;
 }

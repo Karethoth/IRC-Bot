@@ -10,8 +10,9 @@ namespace IRC
     char *ident;
     char *realName;
     char *host;
+    char *raw;
   };
-  User ParseUser( char *data );
+  struct User *ParseUser( char *source );
 }
 
 #endif

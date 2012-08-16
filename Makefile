@@ -5,6 +5,7 @@ TGT      = ircbot
 TGTFLAGS = -rdynamic -ldl
 
 OBJS  = obj/extension_manager.o \
+        obj/irc/user.o \
 	obj/irc/command.o \
         obj/irc/server.o \
 	obj/main.o
