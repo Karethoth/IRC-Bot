@@ -30,6 +30,13 @@ namespace IRC
     WORKING
   };
 
+  
+  struct ClientUserInfo
+  {
+    std::string nick;
+    std::string oldNick;
+  };
+
 
   class Server
   {
@@ -40,6 +47,8 @@ namespace IRC
 
     char       *buffer;
     ssize_t     bufferSize;
+
+    struct ClientUserInfo userInfo;
 
     ServerState state;
 
@@ -60,13 +69,17 @@ namespace IRC
     virtual bool Join( std::string channel );
     virtual bool Part( std::string channel );
 
+    virtual bool Nick( std::string newNick );
+
     virtual bool IsConnected(){ return (state != NOT_CONNECTED); }
 
     virtual ServerState GetState(){ return state; }
-    virtual ServerState SetState( ServerState s){ state = s; }
+    virtual void SetState( ServerState s){ state = s; }
 
     virtual int GetSocket(){ return sockfd; }
     virtual bool GetCommands( std::vector<IRC::Command> *commands );
+
+    virtual struct ClientUserInfo GetUserInfo(){ return userInfo; }
 
     // For extensions, that interact with other extension(s)
     void *extensionManager;

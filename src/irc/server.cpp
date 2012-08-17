@@ -74,6 +74,7 @@ Server::~Server()
 /* Basic methods */
 bool Server::Connect()
 {
+  userInfo.oldNick = "nonick";
   struct sockaddr_in servAddr;
   struct hostent *server;
 
@@ -157,6 +158,16 @@ bool Server::Part( string channel )
     }
     ++chanit;
   }
+  return true;
+}
+
+
+
+bool Server::Nick( string newNick )
+{
+  Write( string("NICK ")+newNick+string("\r\n") );
+  userInfo.oldNick = userInfo.nick;
+  userInfo.nick    = newNick;
   return true;
 }
 

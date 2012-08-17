@@ -20,7 +20,11 @@ extern "C"
 
 BotExtension::BotExtension()
 {
-  name = "Bot";
+  name        = "Bot";
+  botName     = "KoukariBot";
+  botUsername = "bot";
+  botHost     = "home.ndirt.com";
+  botRealname = "KoukariBot";
 }
 
 
@@ -74,16 +78,27 @@ bool BotExtension::HandleCommands( IRC::Server *server, vector<IRC::Command> *co
 
 bool BotExtension::Authenticate( IRC::Command cmd, IRC::Server *server )
 {
+  string tmp;
   if( server->GetState() == IRC::SETTING_NICK )
   {
-    printf( "Setting nick\r\n" );
-    server->Write( "NICK KoukariBot\n" );
+    printf( "Setting nick\n" );
+    tmp = "NICK ";
+    tmp.append( botName );
+    tmp.append( "\r\n" );
+    server->Write( tmp );
     server->SetState( IRC::SETTING_USER );
   }
   else if( server->GetState() == IRC::SETTING_USER )
   {
-    printf( "Setting user\r\n" );
-    server->Write( "USER meh meh meh 8:KoukariBot\r\n" );
+    printf( "Setting user\n" );
+    tmp = "USER ";
+    tmp.append( botUsername );
+    tmp.append( " " );
+    tmp.append( botHost );
+    tmp.append( " 8 :" );
+    tmp.append( botRealname );
+    tmp.append( "\r\n" );
+    server->Write( tmp );
   }
   return true;
 }
@@ -121,13 +136,67 @@ bool BotExtension::Msg( IRC::Command cmd, IRC::Server *server )
     return false;
   }
 
-  printf( "<%s> %s\n", user->nick, cmd.data );
+  printf( "<%s> to <%s> %s\n", user->nick, cmd.target, cmd.data );
+
+  if( string( cmd.target ).compare( botName ) == 0 )
+  {
+    HandleUserCommand( cmd, user, server );
+    return true;
+  }
+
+
+
+  if( user )
+  {
+    delete user;
+  }
+  return true;
+}
+
+
+
+bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Server *server )
+{
+  string command;
+  string para;
+  string tmp;
+  char *raw = cmd.data;
+  char *params  = NULL;
+  char *p;
 
   string reply = "PRIVMSG ";
   reply.append( user->nick );
   reply.append( " :" );
 
-  if( strstr( cmd.data, "list extensions" ) )
+  p = strstr( raw, " " );
+  if( !p )
+  {
+    server->Write( reply + "Not a valid command!\r\n" );
+    delete user;
+    return true;
+  }
+
+  p[0] = 0;
+
+
+  command  = string( raw );
+  para     = string( p+1 );
+
+  if( command.compare( "join" ) == 0 )
+  {
+    server->Join( para );
+  }
+  else if( command.compare( "part" ) == 0 )
+  {
+    server->Part( para );
+  }
+  if( command.compare( "nick" ) == 0 )
+  {
+    server->Nick( para );
+    botName = para;
+  }
+  else if( command.compare( "list" ) == 0 &&
+           para.compare( "extensions" ) )
   {
     if( !extensionMan )
     {
@@ -141,23 +210,19 @@ bool BotExtension::Msg( IRC::Command cmd, IRC::Server *server )
 
     vector<Extension*> *extensions = extensionMan->GetExtensions();
 
-    // This shouldn't ever happen.
-    if( extensions->size() == 0 )
-    {
-      server->Write( reply+string( "No extensions to be listed.\n" ) );
-    }
-
     vector<Extension*>::iterator extit;
     for( extit = extensions->begin(); extit != extensions->end(); ++extit )
     {
-      server->Write( reply+string( "  - " )+(*extit)->extensionName+string( "\n" ) );
+      server->Write( reply+string( " - " )+(*extit)->extensionName+string( "\r\n" ) );
     }
   }
-
-  if( user )
+  else
   {
-    delete user;
+    server->Write( reply + "Not a valid command!\r\n" );
   }
+
+  delete user;
+
   return true;
 }
 
