@@ -133,6 +133,7 @@ bool ExtensionManager::HandleExtension( string libname )
       return true;
     }
 
+    printf( "Reloading updated extension '%s'..\n", libname.c_str() );
     UnloadExtension( libname );
   }
   LoadExtension( libname );

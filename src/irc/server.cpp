@@ -9,20 +9,6 @@ using std::vector;
 using std::map;
 
 
-/*
-extern "C" {
-  Server *ServerMaker()
-  {
-    return new Server();
-  }
-
-  void ServerDestroyer( Server *server )
-  {
-    delete server;
-  }
-}
-*/
-
 
 /* Initializers */
 Server::Server()
@@ -128,7 +114,7 @@ void Server::Disconnect()
 
 bool Server::Write( string msg )
 {
-  printf( "SENDING TO SERVER: '%s'\n", msg.c_str() );
+  //printf( "SENDING TO SERVER: '%s'\n", msg.c_str() );
   if( write( sockfd, msg.c_str(), msg.length() ) <= -1 )
     return false;
   return true;

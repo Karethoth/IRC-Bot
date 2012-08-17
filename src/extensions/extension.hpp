@@ -41,7 +41,7 @@ class ExtensionBase
       CommandHandler handler = callbackMap[cmd];
       if( handler )
       {
-        printf( "Extension handling command %s\n", (*comIt).command );
+        //printf( "Extension handling command %s\n", (*comIt).command );
         handler( (*comIt), server );
       }
     }
