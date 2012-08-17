@@ -20,7 +20,14 @@ bool ValidateCommand( char *msg )
 Command IRC::ParseCommand( char *msg )
 {
   printf( "Message: '%s'\n", msg );
+
   Command cmd;
+
+  cmd.source  = NULL;
+  cmd.target  = NULL;
+  cmd.command = NULL;
+  cmd.data    = NULL;
+
   cmd.raw = new char[strlen( msg )+2];
   strcpy( cmd.raw, msg );
 
@@ -66,6 +73,8 @@ Command IRC::ParseCommand( char *msg )
     return cmd;
   }
 
+  cmd.user = ParseUser( cmd.source );
+
   ++spacePointer;
 
   if( std::string( cmd.command ).compare( "372" ) == 0 )
@@ -84,8 +93,6 @@ Command IRC::ParseCommand( char *msg )
 
   if( cmd.data[0] == ':' )
     ++cmd.data;
-
-  cmd.user = ParseUser( cmd.source );
 
   return cmd;
 }
