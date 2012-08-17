@@ -85,6 +85,8 @@ Command IRC::ParseCommand( char *msg )
   if( cmd.data[0] == ':' )
     ++cmd.data;
 
+  cmd.user = ParseUser( cmd.source );
+
   return cmd;
 }
 

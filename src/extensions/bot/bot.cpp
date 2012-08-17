@@ -21,7 +21,7 @@ extern "C"
 BotExtension::BotExtension()
 {
   name        = "Bot";
-  botName     = "KoukariBot";
+  botName     = "kariSlave";
   botUsername = "bot";
   botHost     = "home.ndirt.com";
   botRealname = "KoukariBot";
@@ -117,6 +117,8 @@ bool BotExtension::LoggedIn( IRC::Command cmd, IRC::Server *server )
 
 bool BotExtension::Pong( IRC::Command cmd, IRC::Server *server )
 {
+  botName = server->GetUserInfo().nick;
+
   string msg = "PONG :";
   msg.append( cmd.data );
   msg.append( "\r\n" );
@@ -129,27 +131,15 @@ bool BotExtension::Pong( IRC::Command cmd, IRC::Server *server )
 
 bool BotExtension::Msg( IRC::Command cmd, IRC::Server *server )
 {
-  IRC::User *user = IRC::ParseUser( cmd.source );
-  if( !user )
-  {
-    fprintf( stderr, "Not handling this msg, not a parsable source!\n" );
-    return false;
-  }
+  printf( "<%s> to <%s> %s\n", cmd.user->nick, cmd.target, cmd.data );
 
-  printf( "<%s> to <%s> %s\n", user->nick, cmd.target, cmd.data );
-
-  if( string( cmd.target ).compare( botName ) == 0 )
+  if( cmd.data[0] == '!' )
   {
-    HandleUserCommand( cmd, user, server );
+    ++cmd.data;
+    HandleUserCommand( cmd, cmd.user, server );
     return true;
   }
 
-
-
-  if( user )
-  {
-    delete user;
-  }
   return true;
 }
 
@@ -164,9 +154,22 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   char *params  = NULL;
   char *p;
 
+
+  string target;
+  if( botName.compare( user->nick ) == 0 )
+  {
+    target = string( cmd.target );
+  }
+  else
+  {
+    target = user->nick;
+  }
+
+
   string reply = "PRIVMSG ";
-  reply.append( user->nick );
+  reply.append( target );
   reply.append( " :" );
+
 
   p = strstr( raw, " " );
   if( !p )
@@ -190,13 +193,13 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   {
     server->Part( para );
   }
-  if( command.compare( "nick" ) == 0 )
+  else if( command.compare( "nick" ) == 0 )
   {
     server->Nick( para );
     botName = para;
   }
   else if( command.compare( "list" ) == 0 &&
-           para.compare( "extensions" ) )
+           para.compare( "extensions" ) == 0 )
   {
     if( !extensionMan )
     {

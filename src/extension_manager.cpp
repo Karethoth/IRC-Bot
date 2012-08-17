@@ -258,7 +258,6 @@ bool ExtensionManager::HandleCommands( Server *server )
   vector<Extension*>::iterator extit;
   for( extit = extensions.begin(); extit != extensions.end(); ++extit )
   {
-    printf( "Giving the command to extension %s.\n", (*extit)->extensionName.c_str() );
     (*extit)->extensionClass->HandleCommands( server, commands );
   }
 

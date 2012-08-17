@@ -1,6 +1,8 @@
 #ifndef __IRC_COMMAND__
 #define __IRC_COMMAND__
 
+#include "user.hpp"
+
 namespace IRC
 {
   struct Command
@@ -10,6 +12,7 @@ namespace IRC
     char *command;
     char *data;
     char *raw;
+    struct User *user;
   };
 
   Command ParseCommand( char *msg );

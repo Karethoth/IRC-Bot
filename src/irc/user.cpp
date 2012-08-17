@@ -18,6 +18,14 @@ IRC::User *IRC::ParseUser( char *source )
   
   usr->nick = usr->raw;
   char *p = strstr( usr->raw, "!" );
+
+  if( !p )
+  {
+    usr->ident = NULL;
+    usr->host = NULL;
+    return usr;
+  }
+
   p[0] = 0;
 
   usr->ident = p+1;

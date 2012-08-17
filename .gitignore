@@ -2,6 +2,7 @@ ircbot
 tags
 bin
 obj
+logs
 *.taghl
 *.swp
 *.swo
