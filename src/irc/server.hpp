@@ -43,6 +43,8 @@ namespace IRC
 
     ServerState state;
 
+    std::vector<std::string> channels;
+
    public:
     Server();
     Server( std::string host, int port );
@@ -54,6 +56,9 @@ namespace IRC
     virtual void Disconnect();
 
     virtual bool Write( std::string msg );
+
+    virtual bool Join( std::string channel );
+    virtual bool Part( std::string channel );
 
     virtual bool IsConnected(){ return (state != NOT_CONNECTED); }
 

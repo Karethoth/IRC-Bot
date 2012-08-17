@@ -10,6 +10,7 @@ class BotExtension : public ExtensionBase
  private:
   // Custom
   ExtensionManager *extensionMan;
+  jk
 
  protected:
   bool Msg( IRC::Command, IRC::Server* );

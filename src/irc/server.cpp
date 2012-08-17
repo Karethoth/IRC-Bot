@@ -117,6 +117,8 @@ void Server::Disconnect()
   if( !IsConnected() )
     return;
 
+  Write( "QUIT\n" );
+
   state = NOT_CONNECTED;
   close( sockfd );
 }
@@ -128,6 +130,33 @@ bool Server::Write( string msg )
   printf( "SENDING TO SERVER: '%s'\n", msg.c_str() );
   if( write( sockfd, msg.c_str(), msg.length() ) <= -1 )
     return false;
+  return true;
+}
+
+
+
+bool Server::Join( string channel )
+{
+  Write( string("JOIN ")+channel+string("\r\n") );
+  channels.push_back( channel );
+  return true;
+}
+
+
+
+bool Server::Part( string channel )
+{
+  Write( string("PART ")+channel+string("\r\n") );
+  vector<string>::iterator chanit;
+  for( chanit = channels.begin(); chanit != channels.end(); )
+  {
+    if( (*chanit).compare( channel ) == 0 )
+    {
+      chanit = channels.erase( chanit );
+      continue;
+    }
+    ++chanit;
+  }
   return true;
 }
 
