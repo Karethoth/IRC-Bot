@@ -1,5 +1,5 @@
 CC    = g++
-CWARN = -W -Wall -Wshadow -Wreturn-type -Wformat -Wparentheses -Wpointer-arith -Wuninitialized -O -g
+CWARN = -g -W -Wall -Wshadow -Wreturn-type -Wformat -Wparentheses -Wpointer-arith -Wuninitialized
 
 TGT      = ircbot
 TGTFLAGS = -rdynamic -ldl
@@ -10,14 +10,26 @@ OBJS  = obj/extension_manager.o \
         obj/irc/server.o \
 	obj/main.o
 
+DIRS  = obj \
+        obj/irc \
+        lib \
+	extensions
 
-all: $(TGT)
+
+all: $(DIRS) $(TGT)
 
 $(TGT): $(OBJS)
 	$(CC) $(CWARN) -o $@ $(OBJS) $(TGTFLAGS)
+	# If it's your first time compiling this,
+	# compile the actual bot with command:
+	# ./manage.sh build bot
+	# Same works for building other extensions too.
 
 obj/%.o: src/%.cpp
-	$(CC) $(CWARN) -c -o $@ $? -fPIC
+	$(CC) -fPIC $(CWARN) -c -o $@ $?
+
+$(DIRS):
+	mkdir -p $(DIRS)
 	
 clean:
-	rm -rf $(TGT) $(OBJS)
+	rm -rf $(TGT) $(OBJS) $(DIRS)

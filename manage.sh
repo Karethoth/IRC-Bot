@@ -6,12 +6,11 @@ extensionName="$2"
 case "$action" in
   "build" )
   echo Building $extensionName
-  g++ -g -shared -Wl,-soname,$extensionName.so.1 -o lib/$extensionName.so.1.0 src/extensions/$extensionName/*.cpp
+  g++ -fPIC -g -shared -Wl,-soname,$extensionName.so.1 -o lib/$extensionName.so.1.0 src/extensions/$extensionName/*.cpp
   if [ $? == 0 ]
     then
       echo Setting up links for $extensionName
       ln -f lib/$extensionName.so.1.0 extensions/$extensionName.so.1
-      #ln -f lib/$extensionName.so.1.0 extensions/$extensionName.so
       echo Finished
     else
       echo Failed to compile the $extensionName!
