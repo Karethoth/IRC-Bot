@@ -2,12 +2,13 @@ CC    = g++
 CWARN = -g -W -Wall -Wshadow -Wreturn-type -Wformat -Wparentheses -Wpointer-arith -Wuninitialized
 
 TGT      = ircbot
-TGTFLAGS = -rdynamic -ldl
+TGTFLAGS = -rdynamic -ldl -lsqlite3
 
 OBJS  = obj/extension_manager.o \
         obj/irc/user.o \
 	obj/irc/command.o \
         obj/irc/server.o \
+        obj/database.o \
 	obj/main.o
 
 DIRS  = obj \

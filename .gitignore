@@ -7,3 +7,4 @@ logs
 *.swp
 *.swo
 *.so*
+bot.db

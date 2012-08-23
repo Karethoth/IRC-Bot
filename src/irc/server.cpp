@@ -190,10 +190,10 @@ bool Server::GetCommands( vector<Command> *commands )
 
     nextLineEnd[0] = 0;
     Command cmd = ParseCommand( offset );
-    if( commands )
-    {
+
+    if( cmd.command != NULL )
       commands->push_back( cmd );
-    }
+
     offset = (nextLineEnd+2);
   }
 
