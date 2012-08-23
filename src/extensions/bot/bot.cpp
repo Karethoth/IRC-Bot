@@ -197,6 +197,11 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   {
     server->Nick( para );
   }
+  else if( command.compare( "reload" ) == 0 &&
+           para.compare( "settings" ) == 0 )
+  {
+    ReloadSettings( server );
+  }
   else if( command.compare( "list" ) == 0 &&
            para.compare( "extensions" ) == 0 )
   {
@@ -247,7 +252,7 @@ bool BotExtension::ReloadSettings( IRC::Server *server )
   server->ReloadSettings();
   settings = server->GetServerSettings();
 
-  if( !settings["nick"].compare( botNick ) )
+  if( settings["nick"].compare( botNick ) )
   {
     server->Nick( settings["nick"] );
   }

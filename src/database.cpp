@@ -130,7 +130,6 @@ map<string, string> GetSettings( sqlite3 *db )
   {
     key = string( (const char*)sqlite3_column_text( stmt, 0 ) );
     val = string( (const char*)sqlite3_column_text( stmt, 1 ) );
-    cout << key << "=" << val << endl;
     settings.insert( pair<string, string>( key, val ) );
   }
 
