@@ -8,10 +8,12 @@
 class BotExtension : public ExtensionBase
 {
  private:
-  std::string botName;
+  std::string botNick;
   std::string botUsername;
   std::string botHost;
   std::string botRealname;
+
+  std::map<std::string,std::string> settings;
 
   // Custom
   ExtensionManager *extensionMan;
@@ -19,9 +21,13 @@ class BotExtension : public ExtensionBase
  protected:
   bool Msg( IRC::Command, IRC::Server* );
   bool Pong( IRC::Command, IRC::Server* );
+  bool Nick( IRC::Command, IRC::Server* );
   bool Authenticate( IRC::Command, IRC::Server* );
   bool LoggedIn( IRC::Command, IRC::Server* );
   bool HandleUserCommand( IRC::Command, IRC::User*, IRC::Server* );
+
+  bool InitSettings( IRC::Server* );
+  bool ReloadSettings( IRC::Server* );
 
  public:
   BotExtension();

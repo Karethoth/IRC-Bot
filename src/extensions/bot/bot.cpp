@@ -1,7 +1,6 @@
 #include "bot.hpp"
 
-using std::string;
-using std::vector;
+using namespace std;
 
 
 extern "C"
@@ -42,6 +41,11 @@ bool BotExtension::HandleCommands( IRC::Server *server, vector<IRC::Command> *co
       Msg( (*comIt), server );
     }
 
+    else if( !string("NICK").compare( (*comIt).command ) )
+    {
+      Nick( (*comIt), server );
+    }
+
     else if( !string("PING").compare( (*comIt).command ) )
     {
       Pong( (*comIt), server );
@@ -77,6 +81,8 @@ bool BotExtension::Authenticate( IRC::Command cmd, IRC::Server *server )
   string tmp;
   if( server->GetState() == IRC::SETTING_NICK )
   {
+    InitSettings( server );
+
     printf( "Setting nick\n" );
     tmp = "NICK ";
     tmp.append( server->GetServerSettings()["nick"] );
@@ -150,7 +156,7 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
 
 
   string target;
-  if( botName.compare( user->nick ) == 0 )
+  if( botNick.compare( user->nick ) == 0 )
   {
     target = string( cmd.target );
   }
@@ -190,7 +196,6 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   else if( command.compare( "nick" ) == 0 )
   {
     server->Nick( para );
-    botName = para;
   }
   else if( command.compare( "list" ) == 0 &&
            para.compare( "extensions" ) == 0 )
@@ -219,6 +224,46 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   }
 
   delete user;
+
+  return true;
+}
+
+
+
+bool BotExtension::InitSettings( IRC::Server *server )
+{
+  server->ReloadSettings();
+  settings = server->GetServerSettings();
+
+  botNick = settings["nick"];
+
+  return true;
+}
+
+
+
+bool BotExtension::ReloadSettings( IRC::Server *server )
+{
+  server->ReloadSettings();
+  settings = server->GetServerSettings();
+
+  if( !settings["nick"].compare( botNick ) )
+  {
+    server->Nick( settings["nick"] );
+  }
+
+  return true;
+}
+
+
+
+bool BotExtension::Nick( IRC::Command cmd, IRC::Server *server )
+{
+  if( !botNick.compare( cmd.user->nick ) )
+  {
+    botNick = string( cmd.target+1 );
+    cout << "Changed nick to " << botNick << endl;
+  }
 
   return true;
 }
