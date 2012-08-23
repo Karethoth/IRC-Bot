@@ -6,5 +6,6 @@ logs
 *.taghl
 *.swp
 *.swo
+*.swn
 *.so*
 bot.db

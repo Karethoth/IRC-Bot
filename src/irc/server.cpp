@@ -2,20 +2,25 @@
 #include "../extension_manager.hpp"
 
 #include <cerrno>
+#include <cstdlib>
 
 using namespace IRC;
-using std::string;
-using std::vector;
-using std::map;
+using namespace std;
 
 
 
 /* Initializers */
 Server::Server()
 {
-  bufferSize = 1024;
   state = NOT_CONNECTED;
   extensionManager = NULL;
+
+  bufferSize = 1024;
+  buffer = new char[bufferSize];
+  if( !buffer )
+  {
+    fprintf( stderr, "Error allocating servers buffer!\n" );
+  }
 }
 
 
@@ -60,11 +65,13 @@ Server::~Server()
 /* Basic methods */
 bool Server::Connect()
 {
-  userInfo.oldNick = "nonick";
+  serverHost = settings["serverHost"];
+  serverPort = atoi( settings["serverPort"].c_str() );
+
   struct sockaddr_in servAddr;
   struct hostent *server;
 
-  printf( "Connecting..\n" );
+  cout << "Connecting " << serverHost << ":" << serverPort << endl;
 
   sockfd = socket( AF_INET, SOCK_STREAM, 0 );
   if( sockfd < 0 )
@@ -152,8 +159,6 @@ bool Server::Part( string channel )
 bool Server::Nick( string newNick )
 {
   Write( string("NICK ")+newNick+string("\r\n") );
-  userInfo.oldNick = userInfo.nick;
-  userInfo.nick    = newNick;
   return true;
 }
 
@@ -203,4 +208,10 @@ bool Server::GetCommands( vector<Command> *commands )
 }
 
 
+
+bool Server::ReloadSettings()
+{
+  settings = GetSettings( db );
+  return true;
+}
 

@@ -40,21 +40,28 @@ int main()
     CreateDB( dbPath );
   }
 
-  // Server related
-  string host   = "irc.quakenet.org";
-  int    port   = 6667;
+  sqlite3 *db;
+  int ret = sqlite3_open( dbPath.c_str(), &db );
+  if( ret )
+  {
+    cout << "Failed to open database " << dbPath << "!\n";
+    return -1;
+  }
 
 
   ExtensionManager *em = new ExtensionManager();
   em->Update();
 
 
-  IRC::Server *server = new IRC::Server( host, port );
+  IRC::Server *server = new IRC::Server();
   if( !server )
   {
     fprintf( stderr, "Setting up the server failed!" );
     return -1;
   }
+
+  server->SetDB( db );
+  server->ReloadSettings();
 
   if( !server->Connect() )
   {
@@ -86,6 +93,9 @@ int main()
     server->Disconnect();
     delete server;
   }
+
+  if( db )
+    sqlite3_close( db );
 
   return 0;
 }

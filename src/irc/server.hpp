@@ -14,6 +14,9 @@
 #include <map>
 #include <vector>
 
+#include <sqlite3.h>
+#include "../database.hpp"
+
 #include "command.hpp"
 
 
@@ -31,12 +34,6 @@ namespace IRC
   };
 
   
-  struct ClientUserInfo
-  {
-    std::string nick;
-    std::string oldNick;
-  };
-
 
   class Server
   {
@@ -48,11 +45,13 @@ namespace IRC
     char       *buffer;
     ssize_t     bufferSize;
 
-    struct ClientUserInfo userInfo;
-
     ServerState state;
 
     std::vector<std::string> channels;
+
+    sqlite3 *db;
+    std::map<std::string,std::string> settings;
+
 
    public:
     Server();
@@ -77,9 +76,16 @@ namespace IRC
     virtual void SetState( ServerState s){ state = s; }
 
     virtual int GetSocket(){ return sockfd; }
+    virtual void SetSocket( int sock ){ sockfd = sock; }
+
     virtual bool GetCommands( std::vector<IRC::Command> *commands );
 
-    virtual struct ClientUserInfo GetUserInfo(){ return userInfo; }
+    virtual void SetDB( sqlite3 *database ){ db = database; }
+    virtual sqlite3 *GetDB(){ return db; }
+
+    virtual bool ReloadSettings();
+    virtual std::map<std::string,std::string> GetServerSettings()
+    { return settings; }
 
     // For extensions, that interact with other extension(s)
     void *extensionManager;

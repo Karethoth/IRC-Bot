@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <sqlite3.h>
 #include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -42,16 +43,17 @@ bool DBExists( string path )
 
 bool CreateDB( string path )
 {
-  int queryCount = 4;
+  int queryCount = 5;
   string queries[] =
   {
     "CREATE TABLE Settings( key varchar(30), value text )",
     "INSERT INTO Settings VALUES( \"nick\", \"_NICK_\" )",
     "INSERT INTO Settings VALUES( \"nickAlternative\", \"_ALTERNATIVE_\" )",
     "INSERT INTO Settings VALUES( \"serverHost\", \"_SERVERHOST_\" )",
+    "INSERT INTO Settings VALUES( \"serverPort\", \"_SERVERPORT_\" )",
   };
 
-  string nick, nickAlternative, serverHost;
+  string nick, nickAlternative, serverHost, serverPort;
 
   while( nick.length() <= 0 )
   {
@@ -66,6 +68,11 @@ bool CreateDB( string path )
   while( serverHost.length() <= 0 )
   {
     serverHost = QueryUser( "Server host: " );
+  }
+
+  while( serverPort.length() <= 0 )
+  {
+    serverPort = QueryUser( "Server port: " );
   }
 
 
@@ -86,10 +93,12 @@ bool CreateDB( string path )
     q = ReplaceSubstring( q, "_NICK_", nick );
     q = ReplaceSubstring( q, "_ALTERNATIVE_", nickAlternative );
     q = ReplaceSubstring( q, "_SERVERHOST_", serverHost );
+    q = ReplaceSubstring( q, "_SERVERPORT_", serverPort );
 
     ret = sqlite3_exec( db, q.c_str(), NULL, 0, &errMesg );
     if( ret != SQLITE_OK )
     {
+      cerr << "DB err: " << sqlite3_errmsg( db ) << endl;
       sqlite3_free( errMesg );
     }
   }
@@ -101,4 +110,30 @@ bool CreateDB( string path )
   return true;
 }
 
+
+map<string, string> GetSettings( sqlite3 *db )
+{
+  map<string, string> settings = map<string, string>();
+
+  sqlite3_stmt *stmt;
+  //char *errMsg = 0;
+  const char *select = "SELECT * FROM Settings";
+
+  if( sqlite3_prepare_v2( db, select, -1, &stmt, NULL ) )
+  {
+    cerr << "DB err: " << sqlite3_errmsg( db ) << endl;
+    return settings;
+  }
+
+  string key, val;
+  while( sqlite3_step( stmt ) == SQLITE_ROW )
+  {
+    key = string( (const char*)sqlite3_column_text( stmt, 0 ) );
+    val = string( (const char*)sqlite3_column_text( stmt, 1 ) );
+    cout << key << "=" << val << endl;
+    settings.insert( pair<string, string>( key, val ) );
+  }
+
+  return settings;
+}
 

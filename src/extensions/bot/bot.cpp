@@ -21,10 +21,6 @@ extern "C"
 BotExtension::BotExtension()
 {
   name        = "Bot";
-  botName     = "kariSlave";
-  botUsername = "bot";
-  botHost     = "home.ndirt.com";
-  botRealname = "KoukariBot";
 }
 
 
@@ -83,7 +79,7 @@ bool BotExtension::Authenticate( IRC::Command cmd, IRC::Server *server )
   {
     printf( "Setting nick\n" );
     tmp = "NICK ";
-    tmp.append( botName );
+    tmp.append( server->GetServerSettings()["nick"] );
     tmp.append( "\r\n" );
     server->Write( tmp );
     server->SetState( IRC::SETTING_USER );
@@ -92,11 +88,11 @@ bool BotExtension::Authenticate( IRC::Command cmd, IRC::Server *server )
   {
     printf( "Setting user\n" );
     tmp = "USER ";
-    tmp.append( botUsername );
+    tmp.append( server->GetServerSettings()["nick"] );
     tmp.append( " " );
-    tmp.append( botHost );
+    tmp.append( server->GetServerSettings()["nick"] );
     tmp.append( " 8 :" );
-    tmp.append( botRealname );
+    tmp.append( server->GetServerSettings()["nick"] );
     tmp.append( "\r\n" );
     server->Write( tmp );
   }
@@ -117,8 +113,6 @@ bool BotExtension::LoggedIn( IRC::Command cmd, IRC::Server *server )
 
 bool BotExtension::Pong( IRC::Command cmd, IRC::Server *server )
 {
-  botName = server->GetUserInfo().nick;
-
   string msg = "PONG :";
   msg.append( cmd.data );
   msg.append( "\r\n" );
