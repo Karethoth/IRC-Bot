@@ -82,7 +82,7 @@ bool ExtensionManager::Update()
   string extLib;
   vector<Extension*>::iterator extit;
   vector<string>::iterator fit;
-  int loop = 0;
+  unsigned int loop = 0;
   for( extit = extensions.begin(); extit != extensions.end(); ++loop )
   {
     if( loop >= extensions.size() || !(*extit) )

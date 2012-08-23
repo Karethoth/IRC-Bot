@@ -13,7 +13,7 @@ IRC::User *IRC::ParseUser( char *source )
     return NULL;
   }
 
-  struct IRC::User *usr = new struct IRC::User;
+  struct IRC::User *usr = new IRC::User;
   usr->raw = source+1;
   
   usr->nick = usr->raw;

@@ -34,7 +34,7 @@ Command IRC::ParseCommand( char *msg )
   if( !ValidateCommand( msg ) )
   {
     printf( "Not a valid command!\n" );
-    cmd.command = "NOT_VALID_COMMAND";
+    cmd.command = NULL;
     return cmd;
   }
 
@@ -46,7 +46,7 @@ Command IRC::ParseCommand( char *msg )
   if( !spacePointer )
   {
     printf( "Not a valid command!\n" );
-    cmd.command = "NOT_VALID_COMMAND";
+    cmd.command = NULL;
     return cmd;
   }
 
