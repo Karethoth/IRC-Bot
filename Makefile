@@ -9,6 +9,7 @@ OBJS  = obj/extension_manager.o \
 	obj/irc/command.o \
         obj/irc/server.o \
         obj/database.o \
+        obj/funcs.o \
 	obj/main.o
 
 DIRS  = obj \

@@ -4,17 +4,9 @@
 #include <iostream>
 #include <map>
 
+#include "funcs.hpp"
+
 using namespace std;
-
-
-string QueryUser( string msg )
-{
-  cout << msg;
-  string answer;
-  cin >> answer;
-  return answer;
-}
-
 
 
 string ReplaceSubstring( string str, const std::string &from, string &to )
@@ -133,6 +125,37 @@ map<string, string> GetSettings( sqlite3 *db )
     settings.insert( pair<string, string>( key, val ) );
   }
 
+  sqlite3_free( stmt );
+
   return settings;
+}
+
+
+
+extern bool TableExists( sqlite3 *db, string table )
+{
+  sqlite3_stmt *stmt;
+
+  string q = "SELECT count(type) from sqlite_master where type='table' and name='";
+  q.append( table );
+  q.append( "'" );
+
+  if( sqlite3_prepare_v2( db, q.c_str(), -1, &stmt, NULL ) )
+  {
+    cerr << "DB err: " << sqlite3_errmsg( db ) << endl;
+    return false;
+  }
+
+  bool exists = false;
+  if( sqlite3_step( stmt ) == SQLITE_ROW )
+  {
+    if( sqlite3_column_int( stmt, 0 ) )
+    {
+      exists = true;
+    }
+  }
+
+  sqlite3_free( stmt );
+  return exists;
 }
 

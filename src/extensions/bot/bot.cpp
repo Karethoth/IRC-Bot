@@ -165,6 +165,7 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
     target = user->nick;
   }
 
+  bool admin = IsAdmin( server, string( user->host ) );
 
   string reply = "PRIVMSG ";
   reply.append( target );
@@ -185,30 +186,35 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   command  = string( raw );
 
 
-  if( command.compare( "join" ) == 0 )
+  if( admin && command.compare( "join" ) == 0 )
   {
     server->Join( para );
   }
-  else if( command.compare( "part" ) == 0 )
+  else if( admin && command.compare( "part" ) == 0 )
   {
     server->Part( para );
   }
-  else if( command.compare( "nick" ) == 0 )
+  else if( admin && command.compare( "nick" ) == 0 )
   {
     server->Nick( para );
   }
-  else if( command.compare( "settings" ) == 0 &&
+  else if( admin && command.compare( "settings" ) == 0 &&
            para.compare( "save" ) == 0 )
   {
     server->SetSettings( settings );
     server->SaveSettings();
   }
-  else if( command.compare( "settings" ) == 0 &&
+  else if( admin && command.compare( "settings" ) == 0 &&
            para.compare( "reload" ) == 0 )
   {
     ReloadSettings( server );
   }
-  else if( command.compare( "list" ) == 0 &&
+  else if( admin && command.compare( "addadmin" ) == 0 )
+           
+  {
+    AddAdmin( server, para );
+  }
+  else if( admin && command.compare( "list" ) == 0 &&
            para.compare( "extensions" ) == 0 )
   {
     if( !extensionMan )
@@ -231,7 +237,7 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   }
   else
   {
-    server->Write( reply + "Not a valid command!\r\n" );
+    server->Write( reply + "Not a valid command or no rights!\r\n" );
   }
 
   delete user;
@@ -245,6 +251,11 @@ bool BotExtension::InitSettings( IRC::Server *server )
 {
   server->ReloadSettings();
   settings = server->GetServerSettings();
+
+  if( !TableExists( server->GetDB(), "BOT_Admins" ) )
+  {
+    SetupDB( server );
+  }
 
   botNick = settings["nick"];
 
@@ -278,6 +289,66 @@ bool BotExtension::Nick( IRC::Command cmd, IRC::Server *server )
     cout << "Changed nick to " << botNick << endl;
   }
 
+  return true;
+}
+
+
+
+bool BotExtension::SetupDB( IRC::Server *server )
+{
+  sqlite3 *db = server->GetDB();
+  cout << "Seems like it's the first time you're running bot extension.\n";
+  cout << "Let's create an admin account for you.\n";
+
+  server->DBExec( "CREATE TABLE BOT_Admins(identificaton varchar(50))" );
+
+  string identification = "";
+  while( identification.length() <= 0 )
+  {
+    identification = QueryUser( "A string that matches your user: " );
+  }
+  
+  AddAdmin( server, identification );
+  return true;
+}
+
+
+
+bool BotExtension::IsAdmin( IRC::Server *server, std::string host )
+{
+  string q = "SELECT * FROM BOT_Admins";
+  sqlite3 *db = server->GetDB();
+  sqlite3_stmt *stmt;
+
+  bool admin = false;
+  if( sqlite3_prepare_v2( db, q.c_str(), -1, &stmt, NULL ) )
+  {
+    cerr << "DB err: " << sqlite3_errmsg( db ) << endl;
+    return admin;
+  }
+
+  string ident;
+  while( sqlite3_step( stmt ) == SQLITE_ROW )
+  {
+    ident = string( (const char*)sqlite3_column_text( stmt, 0 ) );
+    if( host.find( ident ) != string::npos )
+    {
+      admin = true;
+      break;
+    }
+  }
+
+  sqlite3_free( stmt );
+  return admin;
+}
+
+
+bool BotExtension::AddAdmin( IRC::Server *server, std::string identification )
+{
+  string q = "INSERT INTO BOT_Admins VALUES ('";
+  q.append( identification );
+  q.append( "')" );
+  server->DBExec( q );
   return true;
 }
 

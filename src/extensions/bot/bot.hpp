@@ -3,6 +3,7 @@
 
 #include "../extension.hpp"
 #include "../../extension_manager.hpp"
+#include "../../funcs.hpp"
 
 
 class BotExtension : public ExtensionBase
@@ -28,6 +29,11 @@ class BotExtension : public ExtensionBase
 
   bool InitSettings( IRC::Server* );
   bool ReloadSettings( IRC::Server* );
+
+  bool SetupDB( IRC::Server* );
+
+  bool IsAdmin( IRC::Server*, std::string );
+  bool AddAdmin( IRC::Server*, std::string );
 
  public:
   BotExtension();

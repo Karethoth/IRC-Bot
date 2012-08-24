@@ -8,6 +8,7 @@ extern bool DBExists( std::string path );
 extern bool CreateDB( std::string path );
 
 extern std::map<std::string, std::string> GetSettings( sqlite3 *db );
+extern bool TableExists( sqlite3 *db, std::string table );
 
 #endif
 
