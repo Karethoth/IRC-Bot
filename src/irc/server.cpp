@@ -215,3 +215,36 @@ bool Server::ReloadSettings()
   return true;
 }
 
+
+
+bool Server::SaveSettings()
+{
+  string cmd;
+  map<string,string>::iterator sit;
+  for( sit = settings.begin(); sit != settings.end(); ++sit )
+  {
+    cmd = "UPDATE Settings SET value='";
+    cmd.append( (*sit).second );
+    cmd.append( "' WHERE key='" );
+    cmd.append( (*sit).first );
+    cmd.append( "'" );
+    DBExec( cmd );
+  }
+  return true;
+}
+
+
+
+bool Server::DBExec( string cmd )
+{
+  int ret = sqlite3_exec( db, cmd.c_str(), NULL, NULL, NULL );
+
+  if( ret )
+  {
+    cerr << "DB error: " << sqlite3_errmsg( db ) << endl;
+    return false;
+  }
+
+  return true;
+}
+

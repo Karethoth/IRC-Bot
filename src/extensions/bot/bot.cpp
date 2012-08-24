@@ -172,18 +172,18 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
 
 
   p = strstr( raw, " " );
-  if( !p )
+  if( p )
   {
-    server->Write( reply + "Not a valid command!\r\n" );
-    delete user;
-    return true;
+    p[0] = 0;
+    para = string( p+1 );
+  }
+  else
+  {
+    para = "";
   }
 
-  p[0] = 0;
-
-
   command  = string( raw );
-  para     = string( p+1 );
+
 
   if( command.compare( "join" ) == 0 )
   {
@@ -197,8 +197,14 @@ bool BotExtension::HandleUserCommand( IRC::Command cmd, IRC::User *user, IRC::Se
   {
     server->Nick( para );
   }
-  else if( command.compare( "reload" ) == 0 &&
-           para.compare( "settings" ) == 0 )
+  else if( command.compare( "settings" ) == 0 &&
+           para.compare( "save" ) == 0 )
+  {
+    server->SetSettings( settings );
+    server->SaveSettings();
+  }
+  else if( command.compare( "settings" ) == 0 &&
+           para.compare( "reload" ) == 0 )
   {
     ReloadSettings( server );
   }
@@ -267,6 +273,8 @@ bool BotExtension::Nick( IRC::Command cmd, IRC::Server *server )
   if( !botNick.compare( cmd.user->nick ) )
   {
     botNick = string( cmd.target+1 );
+    settings["nick"] = botNick;
+    server->SetSettings( settings );
     cout << "Changed nick to " << botNick << endl;
   }
 

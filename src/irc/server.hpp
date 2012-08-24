@@ -84,6 +84,9 @@ namespace IRC
     virtual sqlite3 *GetDB(){ return db; }
 
     virtual bool ReloadSettings();
+    virtual bool SaveSettings();
+    virtual bool DBExec( std::string cmd );
+    virtual void SetSettings( std::map<std::string,std::string> sets ){ settings = sets; }
     virtual std::map<std::string,std::string> GetServerSettings()
     { return settings; }
 
