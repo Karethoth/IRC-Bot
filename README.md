@@ -15,5 +15,6 @@ This project aims to be an easily extendable C++ IRC-bot.
 * Interacting with SQLite3 database - Still needs some work.
 * Owners, administrators and authentication stuff.
 * Downloadable extensions.
+* Communication interface for sending and receiving data between extensions.
 * Fix bugs.
 
