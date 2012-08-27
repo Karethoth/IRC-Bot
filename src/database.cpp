@@ -132,7 +132,7 @@ map<string, string> GetSettings( sqlite3 *db )
 
 
 
-extern bool TableExists( sqlite3 *db, string table )
+bool TableExists( sqlite3 *db, string table )
 {
   sqlite3_stmt *stmt;
 
