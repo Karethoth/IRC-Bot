@@ -12,8 +12,7 @@ This project aims to be an easily extendable C++ IRC-bot.
  * Otherwise the bot will just connect and ping out.
 
 ### TODO:
-* Interacting with SQLite3 database - Still needs some work.
-* Owners, administrators and authentication stuff.
+* Owners, administrators and authentication stuff. - Works pretty well.
 * Downloadable extensions.
 * Communication interface for sending and receiving data between extensions.
 * Fix bugs.
