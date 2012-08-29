@@ -47,6 +47,10 @@ bool BotExtension::HandleCommands( IRC::Server *server, vector<IRC::Command> *co
     {
       Nick( (*comIt), server );
     }
+    else if( !string("433").compare( (*comIt).command ) )
+    {
+      server->Nick( server->GetServerSettings()["nickAlternative"] );
+    }
 
     else if( !string("PING").compare( (*comIt).command ) )
     {

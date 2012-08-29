@@ -202,7 +202,7 @@ bool Server::GetCommands( vector<Command> *commands )
     offset = (nextLineEnd+2);
   }
 
-  delete tmp;
+  delete []tmp;
 
   return true;
 }
