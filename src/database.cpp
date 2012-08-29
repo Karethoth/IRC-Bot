@@ -9,19 +9,6 @@
 using namespace std;
 
 
-string ReplaceSubstring( string str, const std::string &from, string &to )
-{
-  size_t start = str.find( from );
-
-  if( start == std::string::npos )
-      return str;
-
-  str.replace( start, from.length(), to );
-  return str;
-}
-
-
-
 bool DBExists( string path )
 {
   struct stat st;
@@ -91,10 +78,8 @@ bool CreateDB( string path )
     if( ret != SQLITE_OK )
     {
       cerr << "DB err: " << sqlite3_errmsg( db ) << endl;
-      sqlite3_free( errMesg );
     }
   }
-
 
 
   sqlite3_close( db );
@@ -135,12 +120,14 @@ map<string, string> GetSettings( sqlite3 *db )
 bool TableExists( sqlite3 *db, string table )
 {
   sqlite3_stmt *stmt;
+  if( !db )
+    return false;
 
-  string q = "SELECT count(type) from sqlite_master where type='table' and name='";
+  string q = "SELECT count(*) from sqlite_master where type='table' and name='";
   q.append( table );
-  q.append( "'" );
+  q.append( "'\n" );
 
-  if( sqlite3_prepare_v2( db, q.c_str(), -1, &stmt, NULL ) )
+  if( sqlite3_prepare_v2( db, q.c_str(), -1, &stmt, NULL ) ) // <-- Segfault if table exists
   {
     cerr << "DB err: " << sqlite3_errmsg( db ) << endl;
     return false;

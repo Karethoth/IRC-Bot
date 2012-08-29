@@ -25,7 +25,7 @@ ExtensionManager::ExtensionManager()
   getcwd( extensionDirBuf, 255 );
 
   string extDir = string( extensionDirBuf );
-  delete extensionDirBuf;
+  delete []extensionDirBuf;
 
   extDir.append( "/extensions/" );
 

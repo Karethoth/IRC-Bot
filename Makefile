@@ -8,8 +8,8 @@ OBJS  = obj/extension_manager.o \
         obj/irc/user.o \
 	obj/irc/command.o \
         obj/irc/server.o \
-        obj/database.o \
         obj/funcs.o \
+        obj/database.o \
 	obj/main.o
 
 DIRS  = obj \

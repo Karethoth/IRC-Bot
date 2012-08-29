@@ -16,6 +16,8 @@ extern "C"
   }
 }
 
+extern string QueryUser( string );
+
 
 BotExtension::BotExtension()
 {

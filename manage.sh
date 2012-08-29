@@ -6,7 +6,7 @@ extensionName="$2"
 case "$action" in
   "build" )
   echo Building $extensionName
-  g++ -fPIC -g -shared -Wl,-soname,$extensionName.so.1 -o lib/$extensionName.so.1.0 src/extensions/$extensionName/*.cpp
+  g++ -fPIC -g -shared -Wl,-soname,$extensionName.so.1 -o lib/$extensionName.so.1.0 src/extensions/$extensionName/*.cpp -lsqlite3
   if [ $? == 0 ]
     then
       echo Setting up links for $extensionName

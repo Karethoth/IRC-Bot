@@ -211,7 +211,8 @@ bool Server::GetCommands( vector<Command> *commands )
 
 bool Server::ReloadSettings()
 {
-  settings = GetSettings( db );
+  if( db )
+    settings = GetSettings( db );
   return true;
 }
 
